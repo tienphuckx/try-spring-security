@@ -42,4 +42,27 @@ public class JwtService {
         return Keys.hmacShaKeyFor(decodeKeyBytes);
     }
 
+    public String extractUsername(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(getSecretKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        return claims.getSubject();
+    }
+
+    private Claims getClaimsFromToken(String token) {
+        return Jwts.parser()
+                .verifyWith(getSecretKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
+    public boolean isTokkenValid(String token) {
+        Claims claims = getClaimsFromToken(token);
+        // check the token expiration or not
+        // check [the time in token is AFTER the now time or not]
+        return claims.getExpiration().after(Date.from(Instant.now()));
+    }
 }
